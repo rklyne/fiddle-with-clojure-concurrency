@@ -23,7 +23,7 @@
     )
   )
 
-(def is-prime? (memo is-prime?))
+;(def is-prime? (memo is-prime?))
 
 (defmacro time-of [& body]
   (let [start (gensym)]
@@ -104,34 +104,25 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 (comment "Parallel factor search on bulk input")
 
 (defn factors [n]
-  (filter #(= 0 (mod n %)) (range 2 (inc n))))
+  (->> (range 2 (inc n))
+       (filter #(= 0 (mod n %)))
+       (cons 1)
+       ))
+
 
 (defn process-file [name]
-  (let [process-line (fn [line] (factors (Integer/parseInt line)))]
-      (with-open [rdr (clojure.java.io/reader name)]
-        (doall (map deref (map (future process-line)
-                     (filter #(not (= "" %)) (line-seq rdr))))))))
+  (let [process-line
+        (fn [line] (factors (Integer/parseInt line)))]
+    (with-open [rdr (clojure.java.io/reader name)]
+      (doall 
+        (pmap process-line
+              (filter #(not (= "" %)) (line-seq rdr)))))))
+
+
+
+
+
 
